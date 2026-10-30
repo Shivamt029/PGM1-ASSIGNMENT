@@ -40,3 +40,6 @@ FOREIGN KEY(member_id) REFERENCES members(id)
 )
 """)
 conn.commit()
+
+def add_book():
+    print("Book added!")
