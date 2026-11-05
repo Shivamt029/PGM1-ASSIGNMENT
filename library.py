@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 import sqlite3
 from datetime import date
 
+#DATABASE
 DB_NAME = "library.db"
 
 conn = sqlite3.connect(DB_NAME)
@@ -46,6 +47,8 @@ conn.commit()
 def add_book():
     print("Book added!")
 
+
+# GUI APPLICATION
 app = tk.Tk()
 app.title("City Central Library Management System")
 app.geometry("1920x1080")
