@@ -44,8 +44,21 @@ CREATE TABLE IF NOT EXISTS borrow (
 """)
 conn.commit()
 
-def add_book():
-    print("Book added!")
+def add_book(isbn, title, author, quantity):
+    try:
+        cursor.execute("INSERT INTO book VALUES (?,?,?)", (isbn, title, author, quantity))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def search_book(isbn):
+    cursor.execute("SELECT * FROM book WHERE isbn = ?", (isbn))
+    return cursor.fetchone()
+
+def display_book():
+    cursor.execute("SELECT * FROM book ORDER BY name")
+    return cursor.fetchall()
 
 
 # GUI APPLICATION
