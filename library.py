@@ -45,3 +45,9 @@ conn.commit()
 
 def add_book():
     print("Book added!")
+
+app = tk.Tk()
+app.title("City Central Library Management System")
+app.geometry("1920x1080")
+
+app.mainloop()
