@@ -68,8 +68,8 @@ def update_book(isbn, change):
 def isbn_checker(isbn):
     return len(isbn) == 13 and isbn.isdigit()
 
-def borrow_book(book, stock):
-    return book is not None and stock > 0 and book[2] >= stock
+def borrow_book(book, stock): # book is a row: (isbn, title, author and quantity)
+    return book is not None and stock > 0 and book[3] >= stock
 
 def return_book(days=14):
     return (date.today() + timedelta(days=days)).isoformat()
