@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
-from datetime import date
+from datetime import date, timedelta
 
 #DATABASE
 DB_NAME = "library.db"
@@ -60,6 +60,19 @@ def display_book():
     cursor.execute("SELECT * FROM book ORDER BY name")
     return cursor.fetchall()
 
+def update_book(isbn, change):
+    cursor.execute("UPDATE book SET quantity = quantity + ? WHERE isbn = ?", (change, isbn))
+    conn.commit()
+
+#LOGIC
+def isbn_checker(isbn):
+    return len(isbn) == 13 and isbn.isdigit()
+
+def borrow_book(book, stock):
+    return book is not None and stock > 0 and book[2] >= stock
+
+def return_book(days=14):
+    return (date.today() + timedelta(days=days)).isoformat()
 
 # GUI APPLICATION
 app = tk.Tk()
