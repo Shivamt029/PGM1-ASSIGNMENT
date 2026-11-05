@@ -78,6 +78,6 @@ def return_book(days=14):
 app = tk.Tk()
 app.title("City Central Library Management System")
 app.geometry("1920x1080")
-app.resizable(width=False, height=False)
+app.resizable(width=True, height=True)
 
 app.mainloop()
