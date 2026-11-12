@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import sqlite3
 from datetime import date, timedelta
 
-#DATABASE
+#DATABASE SETUP
 DB_NAME = "library.db"
 
 conn = sqlite3.connect(DB_NAME)
@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS borrow (
 )
 """)
 conn.commit()
+
+#DATABASE FUNCTIONS
 
 def add_book(isbn, title, author, quantity):
     try:
@@ -119,8 +121,10 @@ def refresh_list():
 # GUI APPLICATION
 app = tk.Tk()
 app.title("City Central Library Management System")
-app.geometry("1920x1080")
+app.geometry("1100x700")
+app.minsize(850, 600)
 app.resizable(width=True, height=True)
+app.configure(bg="#eeeeee")
 
 tk.Label(app, text="ISBN (13 digits)").grid(row=0, column=0, sticky="w")
 isbn_entry = tk.Entry(app)
