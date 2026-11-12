@@ -227,7 +227,7 @@ def create_label(parent, text):
         parent,
         text=text,
         bg="white",
-        fg="#2222222"
+        fg="#222222",
         font=("Arial", 10)
     )
 
