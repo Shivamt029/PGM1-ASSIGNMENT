@@ -442,6 +442,54 @@ def show_borrow():
 
     back_button()
 #Return book screen
+def show_return():
+    clear_screen()
+    create_heading("RETURN A BOOK")
+
+    table_area = tk.Frame(content, bg="#eeeeee")
+    table_area.pack(fill="both", expand=True, padx=15, pady=5)
+
+    columns = ("ID", "Book", "Member", "Issue Date", "Due Date")
+    table = create_table(
+        table_area,
+        columns,
+        columns,
+        height=8
+    )
+
+    for record in get_issued_books():
+        table.insert("", tk.END, values=record)
+
+    action_area = tk.Frame(content, bg="white", padx=15, pady=12)
+    action_area.pack(fill="x", padx=20, pady=5)
+
+    create_label(action_area, "Borrow ID:").pack(side="left", padx=5)
+
+    borrow_id_entry = create_entry(action_area)
+    borrow_id_entry.pack(side="left", padx=5, ipady=4)
+
+    def return_selected():
+        borrow_id = borrow_id_entry.get().strip()
+
+        if not borrow_id.isdigit():
+            messagebox.showerror(
+                "Error", "Please enter a valid Borrow ID."
+            )
+            return
+
+        success, message = return_book(int(borrow_id))
+
+        if success:
+            messagebox.showinfo("Success", message)
+            show_return()
+        else:
+            messagebox.showerror("Error", message)
+
+    create_button(
+        action_area, "RETURN BOOK", return_selected, "#238636"
+    ).pack(side="left", padx=10)
+
+    back_button()
 #Search screen
 #Low stock screen
 #All books screen
