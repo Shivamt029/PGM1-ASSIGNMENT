@@ -566,4 +566,14 @@ def show_all_books():
     back_button()
 
 #Exit
+def exit_application():
+    if messagebox.askyesno(
+        "Exit", "Are you sure you want to exit?"
+    ):
+        conn.close()
+        app.destroy()
+
+
+app.protocol("WM_DELETE_WINDOW", exit_application)
+
 app.mainloop()
