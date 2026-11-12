@@ -124,9 +124,46 @@ def issue_book(isbn, name, email, phone):
         )
         conn.commit()
         return True, f"Book issued successfully. Due date: {due_date}."
+    
     except sqlite3.Error as error:
         conn.rollback()
         return False, f"Database error: {error}"
+
+
+def return_book(borrow_id):
+    try:
+        cursor.execute("""
+            SELECT book_id, status FROM borrow WHERE id = ?
+        """, (borrow_id,))
+
+        record = cursor.fetchone()
+
+        if not record:
+            return False, "Borrow record not found."
+        
+        if record[1] == "Returned":
+            return False, "This book has already been returned."
+
+        cursor.execute(
+            "UPDATE books SET quantity = quantity + 1 WHERE isbn = ?", 
+            (record[0],)
+        )
+        conn.commit()
+        return True, "Book returned successfully."
+    except sqlite3.Error as error:
+        conn.rollback()
+        return False, f"Database error: {error}."
+
+def get_issued_book():
+    cursor.execute("""
+        SELECT borrow.id, book.title, members.name, borrow.issue_date, borrow.due_date
+        FROM borrow
+        JOIN book ON borrow.book_id = book.isbn
+        JOIN members ON borrow.member_id = members.id
+        WHERE borrow.status = 'Issued'
+        ORDER BY borrow.due_date
+    """)
+    return cursor.fetchall
 
     
 #LOGIC
