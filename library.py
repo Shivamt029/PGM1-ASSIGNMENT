@@ -202,4 +202,70 @@ style.configure(
     padding=5
 )
 
+#General GUI functions
+def clear_screen():
+    for widget in content.winfo_children():
+        widget.destroy()
+
+def create_button(parent, text, command, color="#174a7e"):
+    return tk.Button(
+        parent,
+        text=text,
+        command=command,
+        bg="white",
+        activebackground="#0d345a",
+        activeforeground="white",
+        font=("Arial", 10, "bold"),
+        width=18,
+        height=2,
+        relief="flat",
+        cursor="hand2"
+    )
+
+def create_label(parent, text):
+    return tk.Label(
+        parent,
+        text=text,
+        bg="white",
+        fg="#2222222"
+        font=("Arial", 10)
+    )
+
+def create_entry(parent):
+    return tk.Entry(
+        parent,
+        font=("Arial", 11),
+        relief="solid",
+        bd=1
+    )
+
+def create_heading(text):
+    tk.Label(
+        content,
+        text=text,
+        bg="#eeeeee",
+        fg="#174a7e",
+        font=("Arial", 19, "bold")
+    ).pack(pady=(15, 10))
+
+def back_button():
+    create_button(
+        content,
+        "BACK TO MAIN MENU",
+        show_main_menu,
+        "#555555"
+    ).pack(pady=12)
+
+def create_table(parent, columnns, headings, height=10):
+    table = ttk.Treeview(
+        parent,
+        columns=columnns,
+        show="headings",
+        height=height
+    )    
+    for column, heading in zip(columns, headings):
+        table.heading(column, text=heading)
+        table.column(column, anchor="center", width=120)
+    table.pack(fill="both", expand=True, padx=10,  pady=10)
+    return table
 app.mainloop()
