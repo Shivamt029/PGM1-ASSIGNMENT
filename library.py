@@ -295,7 +295,32 @@ def show_main_menu():
     create_button(
         left_menu, "RETURN", show_return
     ).pack(fill="x", pady=12)
-    
+
+    #Centre area
+    centre_area = tk.Frame(
+        menu_area,
+        bg="white",
+        relief="solid",
+        bd=1
+    )
+    centre_area.grid(
+        row=0, column=1, sticky="nsew", padx=10, pady=10
+    )
+    #Right menu
+    right_menu = tk.Frame(menu_area, bg="#eeeeee")
+    right_menu.grid(row=0, column=2, sticky="nsew", padx=10)
+
+    create_button(
+        right_menu, "SEARCH", show_search
+    ).pack(fill="x", pady=12)
+
+    create_button(
+        right_menu, "LOW STOCK", show_low_stock
+    ).pack(fill="x", pady=12)
+
+    create_button(
+        right_menu, "ALL BOOKS", show_all_books
+    ).pack(fill="x", pady=12)
 
 #Add book screen
 #Borrow book screen
