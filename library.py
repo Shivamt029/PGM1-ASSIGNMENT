@@ -390,6 +390,57 @@ def show_add_book():
 
     back_button()
 #Borrow book screen
+def show_borrow():
+    clear_screen()
+    create_heading("BORROW A BOOK")
+
+    form_area = tk.Frame(content, bg="#eeeeee")
+    form_area.pack(fill="both", expand=True)
+
+    form = tk.Frame(form_area, bg="white", padx=25, pady=15)
+    form.place(relx=0.5, rely=0.45, anchor="center")
+
+    entries = {}
+
+    fields = [
+        ("Book ISBN", "isbn"),
+        ("Member Name", "name"),
+        ("Member Email", "email"),
+        ("Member Phone", "phone")
+    ]
+
+    for label, key in fields:
+        create_label(form, label).pack(anchor="w", pady=(7, 2))
+        entry = create_entry(form)
+        entry.pack(fill="x", pady=3, ipady=5)
+        entries[key] = entry
+
+    def borrow():
+        isbn = entries["isbn"].get().strip()
+        name = entries["name"].get().strip()
+        email = entries["email"].get().strip()
+        phone = entries["phone"].get().strip()
+
+        if not isbn or not name:
+            messagebox.showerror(
+                "Error", "Book ISBN and member name are required."
+            )
+            return
+
+        success, message = issue_book(isbn, name, email, phone)
+
+        if success:
+            messagebox.showinfo("Success", message)
+            for entry in entries.values():
+                entry.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", message)
+
+    create_button(
+        form, "ISSUE BOOK", borrow, "#238636"
+    ).pack(fill="x", pady=15)
+
+    back_button()
 #Return book screen
 #Search screen
 #Low stock screen
