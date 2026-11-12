@@ -322,6 +322,11 @@ def show_main_menu():
         right_menu, "ALL BOOKS", show_all_books
     ).pack(fill="x", pady=12)
 
+    #Exit button
+    create_button(
+        content, "EXIT", exit_application, "#b83232"
+    ).pack(pady=(0, 15))
+
 #Add book screen
 #Borrow book screen
 #Return book screen
