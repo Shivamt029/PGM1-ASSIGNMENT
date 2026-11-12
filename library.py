@@ -166,16 +166,14 @@ def get_issued_book():
     return cursor.fetchall
 
     
-#LOGIC
+#Validation
 def isbn_checker(isbn):
     return len(isbn) == 13 and isbn.isdigit()
 
-def can_borrow(book, stock):
-    # book is a row: (isbn, title, author, quantity)
-    return book is not None and stock > 0 and book[3] >= stock
+def quantity_checker(quantity):
+    return quantity.isdigit() and int(quantity) > 0
 
-def calculate_due_date(days=14):
-    return (date.today() + timedelta(days=days)).isoformat()
+
 
 #GUI LOGIC
 def handle_add():
