@@ -328,6 +328,67 @@ def show_main_menu():
     ).pack(pady=(0, 15))
 
 #Add book screen
+def show_add_book():
+    clear_screen()
+    create_heading("ADD NEW BOOK")
+
+    form_area = tk.Frame(content, bg="#eeeeee")
+    form_area.pack(fill="both", expand=True)
+
+    form = tk.Frame(form_area, bg="white", padx=25, pady=20)
+    form.place(relx=0.5, rely=0.45, anchor="center")
+
+    entries = {}
+
+    fields = [
+        ("ISBN (13 digits)", "isbn"),
+        ("Book Title", "title"),
+        ("Author", "author"),
+        ("Quantity", "quantity")
+    ]
+
+    for label, key in fields:
+        create_label(form, label).pack(anchor="w", pady=(8, 3))
+        entry = create_entry(form)
+        entry.pack(fill="x", pady=3, ipady=5)
+        entries[key] = entry
+
+    def save_book():
+        isbn = entries["isbn"].get().strip()
+        title = entries["title"].get().strip()
+        author = entries["author"].get().strip()
+        quantity = entries["quantity"].get().strip()
+
+        if not all([isbn, title, author, quantity]):
+            messagebox.showerror("Error", "Please fill in all fields.")
+            return
+
+        if not isbn_checker(isbn):
+            messagebox.showerror(
+                "Error", "ISBN must contain exactly 13 digits."
+            )
+            return
+
+        if not quantity_checker(quantity):
+            messagebox.showerror(
+                "Error", "Quantity must be a number greater than zero."
+            )
+            return
+
+        if add_book(isbn, title, author, int(quantity)):
+            messagebox.showinfo("Success", "Book added successfully.")
+            for entry in entries.values():
+                entry.delete(0, tk.END)
+        else:
+            messagebox.showerror(
+                "Error", "A book with this ISBN already exists."
+            )
+
+    create_button(
+        form, "SAVE BOOK", save_book, "#238636"
+    ).pack(fill="x", pady=15)
+
+    back_button()
 #Borrow book screen
 #Return book screen
 #Search screen
