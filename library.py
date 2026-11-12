@@ -530,6 +530,23 @@ def show_search():
     back_button()
 
 #Low stock screen
+def show_all_books():
+    clear_screen()
+    create_heading("ALL BOOKS")
+
+    table_area = tk.Frame(content, bg="#eeeeee")
+    table_area.pack(fill="both", expand=True, padx=15, pady=5)
+
+    columns = ("ISBN", "Title", "Author", "Quantity")
+    table = create_table(
+        table_area, columns, columns, height=12
+    )
+
+    for record in get_all_books():
+        table.insert("", tk.END, values=record)
+
+    back_button()
+
 #All books screen
 #Exit
 app.mainloop()
