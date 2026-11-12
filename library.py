@@ -530,6 +530,9 @@ def show_search():
     back_button()
 
 #Low stock screen
+
+
+#All books screen
 def show_all_books():
     clear_screen()
     create_heading("ALL BOOKS")
@@ -547,6 +550,5 @@ def show_all_books():
 
     back_button()
 
-#All books screen
 #Exit
 app.mainloop()
