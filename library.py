@@ -491,6 +491,44 @@ def show_return():
 
     back_button()
 #Search screen
+def show_search():
+    clear_screen()
+    create_heading("SEARCH BOOKS")
+
+    search_area = tk.Frame(content, bg="white", padx=15, pady=12)
+    search_area.pack(fill="x", padx=20, pady=5)
+
+    create_label(
+        search_area, "Search by ISBN, title or author:"
+    ).pack(side="left", padx=5)
+
+    search_entry = create_entry(search_area)
+    search_entry.pack(side="left", fill="x", expand=True, padx=5, ipady=5)
+
+    table_area = tk.Frame(content, bg="#eeeeee")
+    table_area.pack(fill="both", expand=True, padx=15, pady=5)
+
+    columns = ("ISBN", "Title", "Author", "Quantity")
+    table = create_table(
+        table_area, columns, columns, height=10
+    )
+
+    def perform_search():
+        for item in table.get_children():
+            table.delete(item)
+
+        keyword = search_entry.get().strip()
+
+        for record in search_books(keyword):
+            table.insert("", tk.END, values=record)
+
+    create_button(
+        search_area, "SEARCH", perform_search
+    ).pack(side="left", padx=5)
+
+    perform_search()
+    back_button()
+
 #Low stock screen
 #All books screen
 #Exit
