@@ -68,6 +68,35 @@ def get_all_books():
     cursor.execute("SELECT * FROM book ORDER BY title")
     return cursor.fetchall()
 
+def search_books(keyword):
+    cursor.execute("""
+        SELECT * FROM book
+        WHERE isbn LIKE ? OR title LIKE ? OR author LIKE ?
+        ORDER BY title
+    """, (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
+    return cursor.fetchall()
+
+def get_low_stock():
+    cursor.execute(
+        "SELECT * FROM book WHERE quantity <= 3 ORDER BY quantity"
+    )
+    return cursor.fetchall()
+
+def get_or_add_members(name, email, phone):
+    cursor.execute(
+        "SELECT id FROM members WHERE name = ? AND email = ?", (name, email)
+    )
+    member = cursor.fetchone()
+
+    if member:
+        return member[0]
+
+    cursor.execute("""
+        INSERT INTO members (name, email, phone, date_joined)
+        VALUES (?, ?, ?, ?)
+    """, (name, email, phone, str(date.today())))
+    return cursor.lastrowid
+
 #LOGIC
 def isbn_checker(isbn):
     return len(isbn) == 13 and isbn.isdigit()
