@@ -269,6 +269,34 @@ def create_table(parent, columnns, headings, height=10):
     table.pack(fill="both", expand=True, padx=10,  pady=10)
     return table
 #Main menu screen
+def show_main_menu():
+    clear_screen()
+
+    menu_area = tk.Frame(content, bg="#eeeeee")
+    menu_area.pack(fill="both", expand=True, padx=20, pady=20)
+
+    menu_area.columnconfigure(0, weight=1)
+    menu_area.columnconfigure(1, weight=2)
+    menu_area.columnconfigure(2, weight=1)
+    menu_area.rowconfigure(0, weight=1)
+
+    #Left menu
+    left_menu = tk.Frame(menu_area, bg="#eeeeee")
+    left_menu.grid(row=0, column=0, sticky="nsew", padx=10)
+
+    create_button(
+        left_menu, "ADD BOOK", show_add_book
+    ).pack(fill="x", pady=12)
+
+    create_button(
+        left_menu, "BORROW", show_borrow
+    ).pack(fill="x", pady=12)
+
+    create_button(
+        left_menu, "RETURN", show_return
+    ).pack(fill="x", pady=12)
+    
+
 #Add book screen
 #Borrow book screen
 #Return book screen
