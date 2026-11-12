@@ -173,11 +173,6 @@ def isbn_checker(isbn):
 def quantity_checker(quantity):
     return quantity.isdigit() and int(quantity) > 0
 
-
-
-#GUI LOGIC
-
-
 # GUI APPLICATION
 app = tk.Tk()
 app.title("City Central Library Management System")
@@ -186,5 +181,25 @@ app.minsize(850, 600)
 app.resizable(width=True, height=True)
 app.configure(bg="#eeeeee")
 
+style = ttk.Style()
+style.theme_use("clam")
+
+style.configure(
+    "Treeview",
+    rowheight=28,
+    font=("Arial", 10),
+    background="white",
+    fieldbackground="white"
+)
+
+style.configure(
+    "Treeview.Heading",
+    font=("Arial", 10, "bold"),
+    background="#dce6f1"
+)
+style.configure(
+    "TCombobox",
+    padding=5
+)
 
 app.mainloop()
