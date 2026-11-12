@@ -457,7 +457,7 @@ def show_return():
         height=8
     )
 
-    for record in get_issued_books():
+    for record in get_issued_book():
         table.insert("", tk.END, values=record)
 
     action_area = tk.Frame(content, bg="white", padx=15, pady=12)
