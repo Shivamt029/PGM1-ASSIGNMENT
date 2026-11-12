@@ -592,4 +592,6 @@ tk.Label(
 content = tk.Frame(app, bg="#eeeeee")
 content.pack(fill="both", expand=True, padx=15, pady=15)
 
+#Starting of application
+show_main_menu()
 app.mainloop()
