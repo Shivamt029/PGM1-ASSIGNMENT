@@ -256,10 +256,10 @@ def back_button():
         "#555555"
     ).pack(pady=12)
 
-def create_table(parent, columnns, headings, height=10):
+def create_table(parent, columns, headings, height=10):
     table = ttk.Treeview(
         parent,
-        columns=columnns,
+        columns=columns,
         show="headings",
         height=height
     )    
