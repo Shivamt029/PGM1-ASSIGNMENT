@@ -268,4 +268,12 @@ def create_table(parent, columnns, headings, height=10):
         table.column(column, anchor="center", width=120)
     table.pack(fill="both", expand=True, padx=10,  pady=10)
     return table
+#Main menu screen
+#Add book screen
+#Borrow book screen
+#Return book screen
+#Search screen
+#Low stock screen
+#All books screen
+#Exit
 app.mainloop()
