@@ -97,6 +97,38 @@ def get_or_add_members(name, email, phone):
     """, (name, email, phone, str(date.today())))
     return cursor.lastrowid
 
+def issue_book(isbn, name, email, phone):
+    try:
+        book = search_book(isbn)
+
+        if not book:
+            return False, "Book not found."
+
+        if book[3] <= 0:
+            return False, "This book is out of stock."
+
+        member_id = get_or_add_members(name, email, phone)
+
+        issue_date = date.today()
+        due_date = issue_date + timedelta(days=14)
+
+        cursor.execute("""
+            INSERT INTO borrow
+            (book_id, member_id, issue_date, due_date, status)
+            VALUES (?, ?, ?, ?, 'Issued')
+        """, (isbn, member_id, str(issue_date), str(due_date)))
+
+        cursor.execute(
+            "UPDATE book SET quantity = quantity - 1 WHERE isbn = ?",
+            (isbn,)
+        )
+        conn.commit()
+        return True, f"Book issued successfully. Due date: {due_date}."
+    except sqlite3.Error as error:
+        conn.rollback()
+        return False, f"Database error: {error}"
+
+    
 #LOGIC
 def isbn_checker(isbn):
     return len(isbn) == 13 and isbn.isdigit()
