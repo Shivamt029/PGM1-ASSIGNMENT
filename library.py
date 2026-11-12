@@ -576,4 +576,20 @@ def exit_application():
 
 app.protocol("WM_DELETE_WINDOW", exit_application)
 
+#Header and content
+header = tk.Frame(app, bg="#174a7e", height=65)
+header.pack(fill="x")
+header.pack_propagate(False)
+
+tk.Label(
+    header,
+    text="LIBRARY MANAGEMENT SYSTEM",
+    bg="#174a7e",
+    fg="white",
+    font=("Arial", 18, "bold")
+).pack(expand=True)
+
+content = tk.Frame(app, bg="#eeeeee")
+content.pack(fill="both", expand=True, padx=15, pady=15)
+
 app.mainloop()
