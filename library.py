@@ -3,11 +3,8 @@ from tkinter import ttk, messagebox
 import sqlite3
 from datetime import date, timedelta
 
-#DATABASE SETUP
-DB_NAME = "library.db"
-
-conn = sqlite3.connect(DB_NAME)
-conn.execute("PRAGMA foreign_keys = ON")
+#Database tables
+conn = sqlite3.connect("library.db")
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -25,48 +22,57 @@ CREATE TABLE IF NOT EXISTS members (
     name TEXT NOT NULL,
     email TEXT,
     phone TEXT,
-    date_joined TEXT NOT NULL
+    date_joined TEXT
 )
 """)
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS borrow (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    book_id TEXT NOT NULL,
-    member_id INTEGER NOT NULL,
-    issue_date TEXT NOT NULL,
-    due_date TEXT NOT NULL,
+    book_id TEXT,
+    member_id INTEGER,
+    issue_date TEXT,
+    due_date TEXT,
     return_date TEXT,
-    status TEXT NOT NULL DEFAULT 'Issued',
+    status TEXT DEFAULT 'Issued',
     FOREIGN KEY(book_id) REFERENCES book(isbn),
     FOREIGN KEY(member_id) REFERENCES members(id)
 )
 """)
-conn.commit()
 
-#DATABASE FUNCTIONS
+conn.commit()
+cursor.execute("PRAGMA foreign_keys = ON")
+
+#Database functions
 
 def add_book(isbn, title, author, quantity):
     try:
         cursor.execute(
-            "INSERT INTO book (isbn, title, author, quantity) VALUES (?, ?, ?, ?)",
-            (isbn, title, author, quantity))
+            "INSERT INTO book VALUES (?, ?, ?, ?)",
+            (isbn, title, author, quantity)
+        )
         conn.commit()
         return True
     except sqlite3.IntegrityError:
         return False
 
+
 def search_book(isbn):
     cursor.execute("SELECT * FROM book WHERE isbn = ?", (isbn,))
     return cursor.fetchone()
 
-def update_book(isbn, change):
-    cursor.execute("UPDATE book SET quantity = quantity + ? WHERE isbn = ?", (change, isbn))
-    conn.commit()
-    
+
 def get_all_books():
     cursor.execute("SELECT * FROM book ORDER BY title")
     return cursor.fetchall()
+
+
+def get_low_stock():
+    cursor.execute(
+        "SELECT * FROM book WHERE quantity <= 2 ORDER BY quantity"
+    )
+    return cursor.fetchall()
+
 
 def search_books(keyword):
     cursor.execute("""
@@ -76,15 +82,11 @@ def search_books(keyword):
     """, (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
     return cursor.fetchall()
 
-def get_low_stock():
-    cursor.execute(
-        "SELECT * FROM book WHERE quantity <= 3 ORDER BY quantity"
-    )
-    return cursor.fetchall()
 
-def get_or_add_members(name, email, phone):
+def get_or_add_member(name, email, phone):
     cursor.execute(
-        "SELECT id FROM members WHERE name = ? AND email = ?", (name, email)
+        "SELECT id FROM members WHERE name = ? AND email = ?",
+        (name, email)
     )
     member = cursor.fetchone()
 
@@ -95,7 +97,9 @@ def get_or_add_members(name, email, phone):
         INSERT INTO members (name, email, phone, date_joined)
         VALUES (?, ?, ?, ?)
     """, (name, email, phone, str(date.today())))
+
     return cursor.lastrowid
+
 
 def issue_book(isbn, name, email, phone):
     try:
@@ -107,7 +111,7 @@ def issue_book(isbn, name, email, phone):
         if book[3] <= 0:
             return False, "This book is out of stock."
 
-        member_id = get_or_add_members(name, email, phone)
+        member_id = get_or_add_member(name, email, phone)
 
         issue_date = date.today()
         due_date = issue_date + timedelta(days=14)
@@ -122,9 +126,10 @@ def issue_book(isbn, name, email, phone):
             "UPDATE book SET quantity = quantity - 1 WHERE isbn = ?",
             (isbn,)
         )
+
         conn.commit()
-        return True, f"Book issued successfully. Due date: {due_date}."
-    
+        return True, f"Book issued successfully. Due date: {due_date}"
+
     except sqlite3.Error as error:
         conn.rollback()
         return False, f"Database error: {error}"
@@ -133,52 +138,64 @@ def issue_book(isbn, name, email, phone):
 def return_book(borrow_id):
     try:
         cursor.execute("""
-            SELECT book_id, status FROM borrow WHERE id = ?
+            SELECT book_id, status
+            FROM borrow WHERE id = ?
         """, (borrow_id,))
 
         record = cursor.fetchone()
 
         if not record:
             return False, "Borrow record not found."
-        
+
         if record[1] == "Returned":
             return False, "This book has already been returned."
 
+        cursor.execute("""
+            UPDATE borrow
+            SET status = 'Returned', return_date = ?
+            WHERE id = ?
+        """, (str(date.today()), borrow_id))
+
         cursor.execute(
-            "UPDATE books SET quantity = quantity + 1 WHERE isbn = ?", 
+            "UPDATE book SET quantity = quantity + 1 WHERE isbn = ?",
             (record[0],)
         )
+
         conn.commit()
         return True, "Book returned successfully."
+
     except sqlite3.Error as error:
         conn.rollback()
-        return False, f"Database error: {error}."
+        return False, f"Database error: {error}"
 
-def get_issued_book():
+
+def get_issued_books():
     cursor.execute("""
-        SELECT borrow.id, book.title, members.name, borrow.issue_date, borrow.due_date
+        SELECT borrow.id, book.title, members.name,
+               borrow.issue_date, borrow.due_date
         FROM borrow
         JOIN book ON borrow.book_id = book.isbn
         JOIN members ON borrow.member_id = members.id
         WHERE borrow.status = 'Issued'
         ORDER BY borrow.due_date
     """)
-    return cursor.fetchall
+    return cursor.fetchall()
 
-    
-#Validation
+#Validation rules
 def isbn_checker(isbn):
-    return len(isbn) == 13 and isbn.isdigit()
+    return isbn.isdigit() and len(isbn) == 13
+
 
 def quantity_checker(quantity):
     return quantity.isdigit() and int(quantity) > 0
 
-# GUI APPLICATION
+
+#GUI setup
 app = tk.Tk()
-app.title("City Central Library Management System")
+app.title("Library Management System")
 app.geometry("1100x700")
 app.minsize(850, 600)
-app.resizable(width=True, height=True)
+app.resizable(True, True)
 app.configure(bg="#eeeeee")
 
 style = ttk.Style()
@@ -197,6 +214,7 @@ style.configure(
     font=("Arial", 10, "bold"),
     background="#dce6f1"
 )
+
 style.configure(
     "TCombobox",
     padding=5
@@ -207,12 +225,14 @@ def clear_screen():
     for widget in content.winfo_children():
         widget.destroy()
 
+
 def create_button(parent, text, command, color="#174a7e"):
     return tk.Button(
         parent,
         text=text,
         command=command,
-        bg="white",
+        bg=color,
+        fg="white",
         activebackground="#0d345a",
         activeforeground="white",
         font=("Arial", 10, "bold"),
@@ -221,6 +241,7 @@ def create_button(parent, text, command, color="#174a7e"):
         relief="flat",
         cursor="hand2"
     )
+
 
 def create_label(parent, text):
     return tk.Label(
@@ -231,6 +252,7 @@ def create_label(parent, text):
         font=("Arial", 10)
     )
 
+
 def create_entry(parent):
     return tk.Entry(
         parent,
@@ -238,6 +260,7 @@ def create_entry(parent):
         relief="solid",
         bd=1
     )
+
 
 def create_heading(text):
     tk.Label(
@@ -248,6 +271,7 @@ def create_heading(text):
         font=("Arial", 19, "bold")
     ).pack(pady=(15, 10))
 
+
 def back_button():
     create_button(
         content,
@@ -256,19 +280,23 @@ def back_button():
         "#555555"
     ).pack(pady=12)
 
+
 def create_table(parent, columns, headings, height=10):
     table = ttk.Treeview(
         parent,
         columns=columns,
         show="headings",
         height=height
-    )    
+    )
+
     for column, heading in zip(columns, headings):
         table.heading(column, text=heading)
         table.column(column, anchor="center", width=120)
-    table.pack(fill="both", expand=True, padx=10,  pady=10)
+
+    table.pack(fill="both", expand=True, padx=10, pady=10)
     return table
-#Main menu screen
+
+#Main Menu Screen
 def show_main_menu():
     clear_screen()
 
@@ -280,7 +308,7 @@ def show_main_menu():
     menu_area.columnconfigure(2, weight=1)
     menu_area.rowconfigure(0, weight=1)
 
-    #Left menu
+    #Left side of the menu
     left_menu = tk.Frame(menu_area, bg="#eeeeee")
     left_menu.grid(row=0, column=0, sticky="nsew", padx=10)
 
@@ -296,7 +324,7 @@ def show_main_menu():
         left_menu, "RETURN", show_return
     ).pack(fill="x", pady=12)
 
-    #Centre area
+    #Center of the menu
     centre_area = tk.Frame(
         menu_area,
         bg="white",
@@ -306,7 +334,8 @@ def show_main_menu():
     centre_area.grid(
         row=0, column=1, sticky="nsew", padx=10, pady=10
     )
-    #Right menu
+
+    #Right of the menu
     right_menu = tk.Frame(menu_area, bg="#eeeeee")
     right_menu.grid(row=0, column=2, sticky="nsew", padx=10)
 
@@ -322,7 +351,7 @@ def show_main_menu():
         right_menu, "ALL BOOKS", show_all_books
     ).pack(fill="x", pady=12)
 
-    #Exit button
+    #exit button
     create_button(
         content, "EXIT", exit_application, "#b83232"
     ).pack(pady=(0, 15))
@@ -389,6 +418,7 @@ def show_add_book():
     ).pack(fill="x", pady=15)
 
     back_button()
+
 #Borrow book screen
 def show_borrow():
     clear_screen()
@@ -441,6 +471,7 @@ def show_borrow():
     ).pack(fill="x", pady=15)
 
     back_button()
+
 #Return book screen
 def show_return():
     clear_screen()
@@ -457,7 +488,7 @@ def show_return():
         height=8
     )
 
-    for record in get_issued_book():
+    for record in get_issued_books():
         table.insert("", tk.END, values=record)
 
     action_area = tk.Frame(content, bg="white", padx=15, pady=12)
@@ -490,6 +521,7 @@ def show_return():
     ).pack(side="left", padx=10)
 
     back_button()
+
 #Search screen
 def show_search():
     clear_screen()
@@ -565,7 +597,7 @@ def show_all_books():
 
     back_button()
 
-#Exit
+#Exit screen
 def exit_application():
     if messagebox.askyesno(
         "Exit", "Are you sure you want to exit?"
@@ -592,6 +624,6 @@ tk.Label(
 content = tk.Frame(app, bg="#eeeeee")
 content.pack(fill="both", expand=True, padx=15, pady=15)
 
-#Starting of application
+#Start application
 show_main_menu()
 app.mainloop()
