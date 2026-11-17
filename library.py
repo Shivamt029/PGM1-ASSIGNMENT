@@ -186,6 +186,27 @@ def get_issued_books():
     """)
     return cursor.fetchall()
 
+def remove_book(isbn):
+    try:
+        if not search_book(isbn):
+            return False, "Book not found."
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM borrow WHERE book_id = ? AND status = 'Issued'",
+            (isbn,)
+        )
+        if cursor.fetchone()[0] > 0:
+            return False, "This book is currently issued and cannot be removed until it is returned."
+
+        cursor.execute("DELETE FROM borrow WHERE book_id = ?", (isbn,))
+        cursor.execute("DELETE FROM book WHERE isbn = ?", (isbn,))
+        conn.commit()
+        return True, "Book removed successfully."
+
+    except sqlite3.Error as error:
+        conn.rollback()
+        return False, f"Database error: {error}"
+
 #Validation rules
 def isbn_checker(isbn):
     return isbn.isdigit() and len(isbn) == 13
@@ -322,6 +343,10 @@ def show_main_menu():
         left_menu, "RETURN", show_return
     ).pack(fill="x", pady=12)
 
+    create_button(
+        left_menu, "REMOVE BOOK", show_remove_book
+    ).pack(fill="x", pady=12)
+
     #Center of the menu
     centre_area = tk.Frame(
         menu_area,
@@ -365,7 +390,7 @@ def show_add_book():
     form_area = tk.Frame(content, bg="#eeeeee")
     form_area.pack(fill="both", expand=True)
 
-    form = tk.Frame(form_area, bg="white", padx=25, pady=20)
+    form = tk.Frame(form_area, bg="white", padx=25, pady=15)
     form.place(relx=0.5, rely=0.45, anchor="center")
 
     entries = {}
@@ -374,16 +399,16 @@ def show_add_book():
         ("ISBN (13 digits)", "isbn"),
         ("Book Title", "title"),
         ("Author", "author"),
-        ("Quantity", "quantity")
+        ("Quantity", "quantity"),
     ]
 
     for label, key in fields:
-        create_label(form, label).pack(anchor="w", pady=(8, 3))
+        create_label(form, label).pack(anchor="w", pady=(7, 2))
         entry = create_entry(form)
         entry.pack(fill="x", pady=3, ipady=5)
         entries[key] = entry
 
-    def save_book():
+    def save_book(event=None):
         isbn = entries["isbn"].get().strip()
         title = entries["title"].get().strip()
         author = entries["author"].get().strip()
@@ -394,28 +419,77 @@ def show_add_book():
             return
 
         if not isbn_checker(isbn):
-            messagebox.showerror(
-                "Error", "ISBN must contain exactly 13 digits."
-            )
+            messagebox.showerror("Error", "ISBN must contain exactly 13 digits.")
             return
 
         if not quantity_checker(quantity):
-            messagebox.showerror(
-                "Error", "Quantity must be a number greater than zero."
-            )
+            messagebox.showerror("Error", "Quantity must be a number greater than zero.")
             return
 
         if add_book(isbn, title, author, int(quantity)):
             messagebox.showinfo("Success", "Book added successfully.")
             for entry in entries.values():
                 entry.delete(0, tk.END)
+            entries["isbn"].focus_set()
         else:
-            messagebox.showerror(
-                "Error", "A book with this ISBN already exists."
-            )
+            messagebox.showerror("Error", "A book with this ISBN already exists.")
+
+    entries["quantity"].bind("<Return>", save_book)
 
     create_button(
         form, "SAVE BOOK", save_book, "#238636"
+    ).pack(fill="x", pady=15)
+
+    back_button()
+    entries["isbn"].focus_set()
+
+#Remove book screen
+def show_remove_book():
+    clear_screen()
+    create_heading("REMOVE A BOOK")
+
+    form_area = tk.Frame(content, bg="#eeeeee")
+    form_area.pack(fill="both", expand=True)
+
+    form = tk.Frame(form_area, bg="white", padx=25, pady=15)
+    form.place(relx=0.5, rely=0.45, anchor="center")
+
+    create_label(form, "Book ISBN").pack(anchor="w", pady=(7, 2))
+    isbn_entry = create_entry(form)
+    isbn_entry.pack(fill="x", pady=3, ipady=5)
+    isbn_entry.focus_set()
+
+    def remove():
+        isbn = isbn_entry.get().strip()
+
+        if not isbn_checker(isbn):
+            messagebox.showerror("Error", "ISBN must contain exactly 13 digits.")
+            return
+
+        book = search_book(isbn)
+        if not book:
+            messagebox.showerror("Error", "Book not found.")
+            return
+
+        confirmed = messagebox.askyesno(
+            "Confirm Removal",
+            f"Remove '{book[1]}' by {book[2]} from the library?\n\n"
+            "Its borrow history will also be deleted."
+        )
+        if not confirmed:
+            return
+
+        success, message = remove_book(isbn)
+        if success:
+            messagebox.showinfo("Success", message)
+            isbn_entry.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", message)
+
+    isbn_entry.bind("<Return>", lambda event: remove())
+
+    create_button(
+        form, "REMOVE BOOK", remove, "#b83232"
     ).pack(fill="x", pady=15)
 
     back_button()
