@@ -57,12 +57,6 @@ def add_book(isbn, title, author, quantity):
     except sqlite3.IntegrityError:
         return False
 
-
-def search_book(isbn):
-    cursor.execute("SELECT * FROM book WHERE isbn = ?", (isbn,))
-    return cursor.fetchone()
-
-
 def get_all_books():
     cursor.execute("SELECT * FROM book ORDER BY title")
     return cursor.fetchall()
@@ -83,6 +77,9 @@ def search_books(keyword):
     """, (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
     return cursor.fetchall()
 
+def search_book(isbn):
+    cursor.execute("SELECT * FROM book WHERE isbn = ?", (isbn,))
+    return cursor.fetchone()
 
 def get_or_add_member(name, email, phone):
     cursor.execute(
