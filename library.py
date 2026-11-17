@@ -47,7 +47,6 @@ cursor.execute("CREATE INDEX IF NOT EXISTS idx_borrow_status ON borrow(status)")
 cursor.execute("CREATE INDEX IF NOT EXISTS idx_book_quantity ON book(quantity)")
 cursor.execute("CREATE INDEX IF NOT EXISTS idx_members_name_email ON members(name, email)")
 
-conn.commit()
 
 conn.commit()
 cursor.execute("PRAGMA foreign_keys = ON")
