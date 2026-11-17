@@ -41,6 +41,14 @@ CREATE TABLE IF NOT EXISTS borrow (
 )
 """)
 
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_borrow_book ON borrow(book_id)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_borrow_member ON borrow(member_id)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_borrow_status ON borrow(status)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_book_quantity ON book(quantity)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_members_name_email ON members(name, email)")
+
+conn.commit()
+
 conn.commit()
 cursor.execute("PRAGMA foreign_keys = ON")
 
