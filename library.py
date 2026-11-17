@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
 from datetime import date, timedelta
+from PIL import Image, ImageTk
 
 #Database tables
 conn = sqlite3.connect("library.db")
@@ -335,6 +336,9 @@ def show_main_menu():
         row=0, column=1, sticky="nsew", padx=10, pady=10
     )
 
+    logo_label = tk.Label(centre_area, image=logo_photo, bg="white")
+    logo_label.pack(expand=True)
+
     #Right of the menu
     right_menu = tk.Frame(menu_area, bg="#eeeeee")
     right_menu.grid(row=0, column=2, sticky="nsew", padx=10)
@@ -623,6 +627,10 @@ tk.Label(
 
 content = tk.Frame(app, bg="#eeeeee")
 content.pack(fill="both", expand=True, padx=15, pady=15)
+
+logo_image = Image.open("librarylogo.jpeg")
+logo_image.thumbnail((450, 280))
+logo_photo = ImageTk.PhotoImage(logo_image)
 
 #Start application
 show_main_menu()
