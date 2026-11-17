@@ -10,6 +10,7 @@ A library management system built with Python, Tkinter and SQLite.
 - **Return:** Return a book using its Borrow ID.
 - **Low Stock:** Lists books with 2 or fewer copies remaining.
 - **All Books:** Lists the full catalogue sorted by title.
+-**Remove Book:** Allows user to delete a book.
 - **Exit:** Asks for confirmation before closing.
 
 ## Requirements
