@@ -495,6 +495,7 @@ def show_remove_book():
     back_button()
 
 #Borrow book screen
+#Borrow book screen
 def show_borrow():
     clear_screen()
     create_heading("BORROW A BOOK")
@@ -508,10 +509,10 @@ def show_borrow():
     entries = {}
 
     fields = [
-        ("Book ISBN", "isbn"),
+        ("Book ISBN (13 digits)", "isbn"),
         ("Member Name", "name"),
-        ("Member Email", "email"),
-        ("Member Phone", "phone")
+        ("Member Email (optional)", "email"),
+        ("Member Phone (optional)", "phone"),
     ]
 
     for label, key in fields:
@@ -520,16 +521,44 @@ def show_borrow():
         entry.pack(fill="x", pady=3, ipady=5)
         entries[key] = entry
 
-    def borrow():
+    availability = tk.Label(
+        form, text="", bg="white", fg="#555555",
+        font=("Arial", 10, "italic")
+    )
+    availability.pack(anchor="w", pady=(6, 0))
+
+    def update_availability(event=None):
+        isbn = entries["isbn"].get().strip()
+
+        if not isbn_checker(isbn):
+            availability.config(text="", fg="#555555")
+            return
+
+        book = search_book(isbn)
+
+        if not book:
+            availability.config(text="Book not found", fg="#b83232")
+        elif book[3] > 0:
+            availability.config(
+                text=f"{book[1]}: {book[3]} copies available", fg="#238636"
+            )
+        else:
+            availability.config(
+                text=f"{book[1]}: no copies available", fg="#b83232"
+            )
+
+    def borrow(event=None):
         isbn = entries["isbn"].get().strip()
         name = entries["name"].get().strip()
         email = entries["email"].get().strip()
         phone = entries["phone"].get().strip()
 
         if not isbn or not name:
-            messagebox.showerror(
-                "Error", "Book ISBN and member name are required."
-            )
+            messagebox.showerror("Error", "Book ISBN and member name are required.")
+            return
+
+        if not isbn_checker(isbn):
+            messagebox.showerror("Error", "ISBN must contain exactly 13 digits.")
             return
 
         success, message = issue_book(isbn, name, email, phone)
@@ -538,14 +567,20 @@ def show_borrow():
             messagebox.showinfo("Success", message)
             for entry in entries.values():
                 entry.delete(0, tk.END)
+            update_availability()
+            entries["isbn"].focus_set()
         else:
             messagebox.showerror("Error", message)
+
+    entries["isbn"].bind("<KeyRelease>", update_availability)
+    entries["phone"].bind("<Return>", borrow)
 
     create_button(
         form, "ISSUE BOOK", borrow, "#238636"
     ).pack(fill="x", pady=15)
 
     back_button()
+    entries["isbn"].focus_set()
 
 #Return book screen
 def show_return():
