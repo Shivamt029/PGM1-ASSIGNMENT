@@ -495,7 +495,6 @@ def show_remove_book():
     back_button()
 
 #Borrow book screen
-#Borrow book screen
 def show_borrow():
     clear_screen()
     create_heading("BORROW A BOOK")
