@@ -223,7 +223,6 @@ def clear_screen():
     for widget in content.winfo_children():
         widget.destroy()
 
-
 def create_button(parent, text, command, color="#174a7e"):
     return tk.Button(
         parent,
@@ -240,7 +239,6 @@ def create_button(parent, text, command, color="#174a7e"):
         cursor="hand2"
     )
 
-
 def create_label(parent, text):
     return tk.Label(
         parent,
@@ -250,7 +248,6 @@ def create_label(parent, text):
         font=("Arial", 10)
     )
 
-
 def create_entry(parent):
     return tk.Entry(
         parent,
@@ -258,7 +255,6 @@ def create_entry(parent):
         relief="solid",
         bd=1
     )
-
 
 def create_heading(text):
     tk.Label(
@@ -269,7 +265,6 @@ def create_heading(text):
         font=("Arial", 19, "bold")
     ).pack(pady=(15, 10))
 
-
 def back_button():
     create_button(
         content,
@@ -278,7 +273,6 @@ def back_button():
         "#555555"
     ).pack(pady=12)
 
-
 def create_table(parent, columns, headings, height=10):
     table = ttk.Treeview(
         parent,
@@ -286,7 +280,6 @@ def create_table(parent, columns, headings, height=10):
         show="headings",
         height=height
     )
-
     for column, heading in zip(columns, headings):
         table.heading(column, text=heading)
         table.column(column, anchor="center", width=120)
@@ -632,4 +625,3 @@ logo_photo = ImageTk.PhotoImage(logo_image)
 #Start application
 show_main_menu()
 app.mainloop()
-
