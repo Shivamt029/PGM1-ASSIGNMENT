@@ -32,3 +32,6 @@ pip install pillow
 2. Run the script with Python.
 
 The program creates a `library.db` file in the same folder on first run. All data is stored there.
+
+
+## To anyone wanting to use this, kindly fork it as it for a college assignment. 
